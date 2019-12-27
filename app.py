@@ -4,7 +4,7 @@ from location_status import generate_status, generate_place_info
 
 app = Flask(__name__)
 
-ask = Ask(app, "/ub_locations")
+ask = Ask(app, "/ub_dining")
 
 DEFAULT_LOCATION = "Ellicott / Greiner Hall"
 
