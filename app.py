@@ -50,9 +50,9 @@ def start_skill():
     return question(welcome_message)
 
 
-@ask.intent("Help")
+@ask.intent("AMAZON.HelpIntent")
 def help():
-    help_text = "Here are a few examples of things you can ask me...Is c. three open? what is open in north today? So, what do you want to ask?"
+    help_text = "Here are a few examples of things you can ask me...Is a dinning location open? what is open in north/south/ellicott today/tomorrow? So, what do you want to ask?"
     return question(help_text)
 
 
