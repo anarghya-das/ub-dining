@@ -49,7 +49,7 @@ def homepage():
 
 @ask.launch
 def start_skill():
-    welcome_message = 'Hello, would you like to know where you can eat at UB? You can ask me about what is open in north, south, govs or ellicot today or in a future date.'
+    welcome_message = 'Hello, I will help you with dining places at UB. For more information about what I can do just say help!'
     return question(welcome_message)
 
 
