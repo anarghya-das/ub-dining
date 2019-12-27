@@ -87,10 +87,10 @@ def check_place_open(time):
         place_info = generate_place_info(place, time)
         msg = ""
         if place_info == "Closed":
-            msg = f"{place} is {place_info}"
+            msg = f"{place} is {place_info}..."
         else:
             duration = place_info.replace("-", "to")
-            msg = f"{place} is open from {duration}"
+            msg = f"{place} is open from {duration}..."
         msg += "Do you want to ask something else?"
         return question(msg)
     except:
