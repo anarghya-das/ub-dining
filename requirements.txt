@@ -1,0 +1,5 @@
+beautifulsoup4==4.8.2
+Flask==1.1.1
+Flask-Ask==0.8.8
+gunicorn==20.0.4
+requests==2.22.0
