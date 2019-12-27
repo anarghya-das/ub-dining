@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, request
 from flask_ask import Ask, statement, question, session
-from location_status import generate_status
+from location_status import generate_status, generate_place_info
 
 app = Flask(__name__)
 
@@ -27,17 +27,17 @@ def get_area(area):
             return loc
 
 
-def statement_helper(plcaes):
+def statement_helper(plcaes, location):
     places_msg = ""
     if len(plcaes) == 1:
-        places_msg = f"The only food place open at UB is {plcaes[0]}"
+        places_msg = f"The only food place open at {location} is {plcaes[0]}"
     elif len(plcaes) == 0:
-        places_msg = f"There are no food places open at UB! "
+        places_msg = f"There are no food places open at {location}! "
     else:
         msg = ""
         for places_text in plcaes:
             msg += places_text
-        places_msg = f"The food places open at UB are {msg}"
+        places_msg = f"The food places open at {location} are {msg}"
     places_msg += "Do you want to ask something else?"
     return places_msg
 
@@ -49,7 +49,7 @@ def homepage():
 
 @ask.launch
 def start_skill():
-    welcome_message = 'Hello, would you like to know where you can eat at UB? Ask about where you could eat by date and I will tell you.'
+    welcome_message = 'Hello, would you like to know where you can eat at UB? You can ask me about what is open in north, south, govs or ellicot today or in a future date.'
     return question(welcome_message)
 
 
@@ -65,10 +65,37 @@ def no_intent():
     return statement(bye_text)
 
 
-@ask.intent("OpenByDate")
-def open_by_date(time, location):
-    places = get_open_places(get_area(location), time)
-    return question(statement_helper(places))
+@ask.intent("OpenByLocation")
+def open_by_date(time):
+    try:
+        content = request.json
+        location = content["request"]["intent"]["slots"]["location"]["resolutions"][
+            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+        places = get_open_places(location, time)
+        return question(statement_helper(places, location))
+    except:
+        msg = "Sorry I don't know what you mean!"
+        return statement(msg)
+
+
+@ask.intent("IsPlaceOpen")
+def check_place_open(time):
+    try:
+        content = request.json
+        place = content["request"]["intent"]["slots"]["place"]["resolutions"][
+            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+        place_info = generate_place_info(place, time)
+        msg = ""
+        if place_info == "Closed":
+            msg = f"{place} is {place_info}"
+        else:
+            duration = place_info.replace("-", "to")
+            msg = f"{place} is open from {duration}"
+        msg += "Do you want to ask something else?"
+        return question(msg)
+    except:
+        msg = "Sorry I don't know what you mean!"
+        return statement(msg)
 
 
 @ask.intent("AMAZON.FallbackIntent")

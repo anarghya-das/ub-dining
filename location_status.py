@@ -3,20 +3,21 @@ import requests
 import time
 import datetime
 
-# date format: YYYY/MM/DD
+# date format: YYYY-MM-DD
 
 
-def generate_status(area, date=None):
-    url = "https://myubcard.com/recess"
-    if date != None:
-        x = date.split("-")
-        year = int(x[0])
-        month = int(x[1])
-        day = int(x[2])
-        d = datetime.date(year, month, day)
-        unixtime = time.mktime(d.timetuple())
-        date_param = str(int(unixtime))
-        url = f"https://myubcard.com/recess?date={date_param}"
+def get_unix_time(date):
+    x = date.split("-")
+    year = int(x[0])
+    month = int(x[1])
+    day = int(x[2])
+    d = datetime.date(year, month, day)
+    unixtime = time.mktime(d.timetuple())
+    date_param = str(int(unixtime))
+    return date_param
+
+
+def scrap(url, area=None, place=None):
     page = requests.get(url)
     page_html = page.text
 
@@ -29,6 +30,7 @@ def generate_status(area, date=None):
     locations = recess_list.contents
     all_locations = {}
     area_locations = {}
+    places = {}
     for location in locations:
         area_name = location.find(class_='sub-title').text
         buildings = location.find_all('div', 'col-xs-12 area')
@@ -39,11 +41,33 @@ def generate_status(area, date=None):
             status_div = b_contents[1]
             p_name = p_name_div.find('a').text.strip()
             timing = status_div.find('div').text.strip()
+            places[p_name] = timing
             all_locations[p_name] = timing
             if timing != "Closed":
                 per_area[p_name] = timing
         area_locations[area_name] = per_area
-    return area_locations[area]
+    if area is not None:
+        return area_locations[area]
+    elif place is not None:
+        return places[place]
+    else:
+        return all_locations
+
+
+def generate_status(area, date=None):
+    url = "https://myubcard.com/recess"
+    if date != None:
+        date_param = get_unix_time(date)
+        url = f"https://myubcard.com/recess?date={date_param}"
+    return scrap(url, area)
+
+
+def generate_place_info(place, date=None):
+    url = "https://myubcard.com/recess"
+    if date != None:
+        date_param = get_unix_time(date)
+        url = f"https://myubcard.com/recess?date={date_param}"
+    return scrap(url, None, place)
 
 
 AREAS = ["Ellicott / Greiner Hall", "North Campus Academic Buildings",
