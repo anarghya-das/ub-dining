@@ -6,11 +6,10 @@ app = Flask(__name__)
 
 ask = Ask(app, "/ub_locations")
 
-AREAS = ["Ellicott / Greiner Hall", "North Campus Academic Buildings",
-         "South Campus", "Governors", "Downtown"]
+DEFAULT_LOCATION = "Ellicott / Greiner Hall"
 
 
-def get_open_places(location, date=None):
+def get_open_places(location=DEFAULT_LOCATION, date=None):
     open_places = generate_status(location, date)
     alexa_out = []
     for place in open_places:
@@ -20,11 +19,9 @@ def get_open_places(location, date=None):
     return alexa_out
 
 
-def get_area(area):
-    for loc in AREAS:
-        locUp = loc.lower()
-        if locUp.find(area) >= 0:
-            return loc
+def get_custom_value(content, intent):
+    return content["request"]["intent"]["slots"][intent]["resolutions"][
+        "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
 
 
 def statement_helper(plcaes, location):
@@ -44,7 +41,7 @@ def statement_helper(plcaes, location):
 
 @app.route('/')
 def homepage():
-    return "Hello, this shit works!"
+    return "UB Dining Alexa skill details will be here soon!"
 
 
 @ask.launch
@@ -53,15 +50,15 @@ def start_skill():
     return question(welcome_message)
 
 
-@ask.intent("YesIntent")
-def share_places():
-    plcaes = get_open_places()
-    return statement(statement_helper(plcaes))
+@ask.intent("Help")
+def help():
+    help_text = "Here are a few examples of things you can ask me...Is c. three open? what is open in north today? So, what do you want to ask?"
+    return question(help_text)
 
 
 @ask.intent("NoIntent")
 def no_intent():
-    bye_text = "Glad I could be of help, have a wonderful day!"
+    bye_text = "Glad I could help, have a wonderful day!"
     return statement(bye_text)
 
 
@@ -69,8 +66,7 @@ def no_intent():
 def open_by_date(time):
     try:
         content = request.json
-        location = content["request"]["intent"]["slots"]["location"]["resolutions"][
-            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+        location = get_custom_value(content, "location")
         places = get_open_places(location, time)
         return question(statement_helper(places, location))
     except:
@@ -82,10 +78,9 @@ def open_by_date(time):
 def check_place_open(time):
     try:
         content = request.json
-        place = content["request"]["intent"]["slots"]["place"]["resolutions"][
-            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+        place = get_custom_value(content, "place")
         place_info = generate_place_info(place, time)
-        msg = ""
+        msg = "Sorry I don't know what you mean!"
         if place_info == "Closed":
             msg = f"{place} is {place_info}..."
         else:
@@ -94,7 +89,6 @@ def check_place_open(time):
         msg += "Do you want to ask something else?"
         return question(msg)
     except:
-        msg = "Sorry I don't know what you mean!"
         return statement(msg)
 
 
