@@ -1,6 +1,8 @@
 from flask import Flask, request
 from flask_ask import Ask, statement, question, session
 from location_status import generate_status, generate_place_info
+from menu import get_menu
+import time
 
 app = Flask(__name__)
 
@@ -19,9 +21,13 @@ def get_open_places(location=DEFAULT_LOCATION, date=None):
     return alexa_out
 
 
-def get_custom_value(content, intent):
-    return content["request"]["intent"]["slots"][intent]["resolutions"][
-        "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+def get_custom_value(content, intent, id_value=False):
+    if id_value:
+        return content["request"]["intent"]["slots"][intent]["resolutions"][
+            "resolutionsPerAuthority"][0]["values"][0]["value"]["id"]
+    else:
+        return content["request"]["intent"]["slots"][intent]["resolutions"][
+            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
 
 
 def statement_helper(plcaes, location):
@@ -39,9 +45,26 @@ def statement_helper(plcaes, location):
     return places_msg
 
 
+def read_menu(menu, place, time=None):
+    if menu == "Closed":
+        return f"{place} is Closed! "
+    else:
+        if time is None:
+            menu_msg = f"The menu for {place} is..."
+            for meal_time in menu:
+                menu_msg += f"{meal_time} menu..."
+                for item in menu[meal_time]:
+                    menu_msg += f"{item}, "
+        else:
+            menu_msg = f"The {time} menu for {place} is "
+            for item in menu:
+                menu_msg += f"{item}, "
+        return menu_msg
+
+
 @app.route('/')
 def homepage():
-    return "UB Dining Alexa skill details will be here soon!"
+    return f"UB Dining Alexa skill details will be here soon! {time.localtime()}"
 
 
 @ask.launch
@@ -90,6 +113,18 @@ def check_place_open(time):
         return question(msg)
     except:
         return statement(msg)
+
+
+@ask.intent("Menu")
+def menu(time):
+    content = request.json
+    dining_place = get_custom_value(content, "diningCenter")
+    meal_time = get_custom_value(content, "mealTime")
+    dining_place_id = get_custom_value(content, "diningCenter", True)
+    menu = get_menu(dining_place_id, time, meal_time)
+    out_msg = read_menu(menu, dining_place, meal_time)
+    out_msg += "Do you want to ask something else?"
+    return question(out_msg)
 
 
 @ask.intent("AMAZON.FallbackIntent")
