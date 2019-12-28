@@ -24,7 +24,7 @@ def scrap_menu(url, dining_center, time=None):
         menu_items = menu_div.find_all("li", f"item-li {meal_time}-border")
         items = [item.text for item in menu_items]
         menu[meal_time] = items
-    if time is None:
+    if time is None or time not in menu:
         return menu
     else:
         return menu[time]

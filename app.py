@@ -2,16 +2,15 @@ from flask import Flask, request
 from flask_ask import Ask, statement, question, session
 from location_status import generate_status, generate_place_info
 from menu import get_menu
-import time
 
 app = Flask(__name__)
 
 ask = Ask(app, "/ub_dining")
 
-DEFAULT_LOCATION = "Ellicott / Greiner Hall"
+DEFAULT_LOCATION = "North Campus Academic Buildings"
 
 
-def get_open_places(location=DEFAULT_LOCATION, date=None):
+def get_open_places(location, date=None):
     open_places = generate_status(location, date)
     alexa_out = []
     for place in open_places:
@@ -22,12 +21,15 @@ def get_open_places(location=DEFAULT_LOCATION, date=None):
 
 
 def get_custom_value(content, intent, id_value=False):
-    if id_value:
-        return content["request"]["intent"]["slots"][intent]["resolutions"][
-            "resolutionsPerAuthority"][0]["values"][0]["value"]["id"]
-    else:
-        return content["request"]["intent"]["slots"][intent]["resolutions"][
-            "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+    try:
+        if id_value:
+            return content["request"]["intent"]["slots"][intent]["resolutions"][
+                "resolutionsPerAuthority"][0]["values"][0]["value"]["id"]
+        else:
+            return content["request"]["intent"]["slots"][intent]["resolutions"][
+                "resolutionsPerAuthority"][0]["values"][0]["value"]["name"]
+    except:
+        return None
 
 
 def statement_helper(plcaes, location):
@@ -64,7 +66,7 @@ def read_menu(menu, place, time=None):
 
 @app.route('/')
 def homepage():
-    return f"UB Dining Alexa skill details will be here soon! {time.localtime()}"
+    return "UB Dining Alexa skill details will be here soon!"
 
 
 @ask.launch
@@ -75,11 +77,12 @@ def start_skill():
 
 @ask.intent("AMAZON.HelpIntent")
 def help():
-    help_text = "Here are a few examples of things you can ask me...Is a dinning location open? what is open in north/south/ellicott today/tomorrow? So, what do you want to ask?"
+    help_text = "Here are a few examples of things you can ask me...Is a dining location open? what is open in north/south/ellicott today/tomorrow? So, what do you want to ask?"
     return question(help_text)
 
 
 @ask.intent("NoIntent")
+@ask.intent("AMAZON.StopIntent")
 def no_intent():
     bye_text = "Glad I could help, have a wonderful day!"
     return statement(bye_text)
@@ -90,6 +93,8 @@ def open_by_date(time):
     try:
         content = request.json
         location = get_custom_value(content, "location")
+        if location is None:
+            location = DEFAULT_LOCATION
         places = get_open_places(location, time)
         return question(statement_helper(places, location))
     except:
@@ -102,6 +107,8 @@ def check_place_open(time):
     try:
         content = request.json
         place = get_custom_value(content, "place")
+        if place is None:
+            raise Exception("Invalid on-campus dining location")
         place_info = generate_place_info(place, time)
         msg = "Sorry I don't know what you mean!"
         if place_info == "Closed":
@@ -112,19 +119,27 @@ def check_place_open(time):
         msg += "Do you want to ask something else?"
         return question(msg)
     except:
+        msg = "Sorry I don't know what you mean!"
         return statement(msg)
 
 
 @ask.intent("Menu")
 def menu(time):
-    content = request.json
-    dining_place = get_custom_value(content, "diningCenter")
-    meal_time = get_custom_value(content, "mealTime")
-    dining_place_id = get_custom_value(content, "diningCenter", True)
-    menu = get_menu(dining_place_id, time, meal_time)
-    out_msg = read_menu(menu, dining_place, meal_time)
-    out_msg += "Do you want to ask something else?"
-    return question(out_msg)
+    try:
+        content = request.json
+        dining_place = get_custom_value(content, "diningCenter")
+        meal_time = get_custom_value(content, "mealTime")
+        dining_place_id = get_custom_value(content, "diningCenter", True)
+        if dining_place_id is None:
+            raise Exception("Invalid dining location id")
+        menu = get_menu(dining_place_id, time, meal_time)
+        out_msg = read_menu(menu, dining_place, meal_time)
+        out_msg += "Do you want to ask something else?"
+        return question(out_msg)
+    except Exception as ex:
+        print(ex)
+        msg = "Sorry I don't know what you mean!"
+        return statement(msg)
 
 
 @ask.intent("AMAZON.FallbackIntent")
