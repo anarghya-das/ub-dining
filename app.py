@@ -81,7 +81,7 @@ def start_skill():
 def help():
     help_text = "You can ask about what is open in UB..." + \
         "You can also ask if a particular dining location is open or not and you can ask for the menu for a dining center in UB..." + \
-        "For sample commands look at the alexa skills page." + ADDITIONAL_QUESTION
+        "For sample commands look at the alexa skills page..." + ADDITIONAL_QUESTION
     return question(help_text)
 
 
