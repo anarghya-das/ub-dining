@@ -1,22 +1,16 @@
 from bs4 import BeautifulSoup
 import requests
 import time
-import datetime
+import calendar
 
 # date format: YYYY-MM-DD
 HOUR = 1
 
 
 def get_unix_time(date):
-    x = date.split("-")
-    year = int(x[0])
-    month = int(x[1])
-    day = int(x[2])
-    # add additional hour so that it gets the right date
-    d = datetime.datetime(year, month, day, HOUR)
-    unixtime = time.mktime(d.timetuple())
-    date_param = str(int(unixtime))
-    return date_param
+    date = date.strip()
+    # Adding 5 hours for EST conversion from UTC
+    return calendar.timegm(time.strptime(f'{date} 05', '%Y-%m-%d %H'))
 
 
 def scrap(url, area=None, place=None):
@@ -77,7 +71,6 @@ AREAS = ["Ellicott / Greiner Hall", "North Campus Academic Buildings",
 
 
 if __name__ == "__main__":
-    now = datetime.datetime.now()
-    da = now.strftime("%Y-%m-%d")
+    da = "2019-12-28"
     a = generate_status(AREAS[0], da)
     print(f"Open: {a}")

@@ -8,6 +8,9 @@
     "cSpell.words": [
         "Ellicott",
         "Greiner",
-        "nomenu"
+        "nomenu",
+        "strptime",
+        "timegm",
+        "tzinfo"
     ]
 }

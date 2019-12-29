@@ -1,14 +1,11 @@
 from bs4 import BeautifulSoup
 from location_status import get_unix_time
 import requests
-import time
-import datetime
 
 # date format: YYYY-MM-DD
 
 
 def scrap_menu(url, dining_center, time=None):
-    print(url, dining_center, time)
     page = requests.get(url)
     page_html = page.text
     soup = BeautifulSoup(page_html, 'html.parser')
@@ -18,9 +15,7 @@ def scrap_menu(url, dining_center, time=None):
     menu = {}
     for meal in meal_periods:
         debug = meal.get('id')
-        print(debug)
         closed = debug.split('-')[1].strip()
-        print(f"Closed: {closed}")
         if closed == "nomenu":
             return "Closed"
         meal_time = meal.get('id').split('-')[2].strip()
