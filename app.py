@@ -88,7 +88,7 @@ def help():
 @ask.intent("AMAZON.CancelIntent")
 @ask.intent("AMAZON.StopIntent")
 def no_intent():
-    bye_text = "Glad I could help, have a wonderful day!"
+    bye_text = "Glad I could help, go feast your taste buds now!"
     return statement(bye_text)
 
 
