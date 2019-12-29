@@ -50,6 +50,7 @@ def statement_helper(plcaes, location):
 
 
 def read_menu(menu, place, time=None):
+    print(menu)
     if menu == "Closed":
         return f"{place} is Closed! "
     else:
