@@ -147,8 +147,8 @@ def menu(time):
 
 @ask.intent("AMAZON.FallbackIntent")
 def default_fallback():
-    msg = ERROR_STATEMENT
-    return statement(msg)
+    msg = ERROR_STATEMENT + ADDITIONAL_QUESTION
+    return question(msg)
 
 
 if __name__ == "__main__":
