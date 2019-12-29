@@ -4,6 +4,7 @@ import time
 import datetime
 
 # date format: YYYY-MM-DD
+HOUR = 1
 
 
 def get_unix_time(date):
@@ -11,7 +12,8 @@ def get_unix_time(date):
     year = int(x[0])
     month = int(x[1])
     day = int(x[2])
-    d = datetime.date(year, month, day)
+    # add additional hour so that it gets the right date
+    d = datetime.datetime(year, month, day, HOUR)
     unixtime = time.mktime(d.timetuple())
     date_param = str(int(unixtime))
     return date_param

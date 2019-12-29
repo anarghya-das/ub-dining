@@ -50,11 +50,10 @@ def statement_helper(plcaes, location):
 
 
 def read_menu(menu, place, time=None):
-    print(menu)
     if menu == "Closed":
         return f"{place} is Closed! "
     else:
-        if time is None:
+        if time is None or len(menu) > 1:
             menu_msg = f"The menu for {place} is..."
             for meal_time in menu:
                 menu_msg += f"{meal_time} menu..."
