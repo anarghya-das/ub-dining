@@ -8,6 +8,8 @@ app = Flask(__name__)
 ask = Ask(app, "/ub_dining")
 
 DEFAULT_LOCATION = "North Campus Academic Buildings"
+ADDITIONAL_QUESTION = "Can I help you with something else?"
+ERROR_STATEMENT = "Sorry I don't know what you mean!"
 
 
 def get_open_places(location, date=None):
@@ -43,7 +45,7 @@ def statement_helper(plcaes, location):
         for places_text in plcaes:
             msg += places_text
         places_msg = f"The food places open at {location} are {msg}"
-    places_msg += "Do you want to ask something else?"
+    places_msg += ADDITIONAL_QUESTION
     return places_msg
 
 
@@ -74,14 +76,16 @@ def start_skill():
     welcome_message = 'Hello, I will help you with dining places at UB. For more information about what I can do just say help!'
     return question(welcome_message)
 
-
+# Three things: Ask what is open at any day; Ask if that a particular location is open or not; Ask the menu for a dining center.
 @ask.intent("AMAZON.HelpIntent")
 def help():
-    help_text = "Here are a few examples of things you can ask me...Is a dining location open? what is open in north/south/ellicott today/tomorrow? So, what do you want to ask?"
+    help_text = "Hello, you can ask about what is open in UB..." + \
+        "You can also ask if a particular dining location is open or not and you can ask for the menu for a dining center in UB..." + \
+        "For sample commands look at the alexa skills page."
     return question(help_text)
 
 
-@ask.intent("NoIntent")
+@ask.intent("AMAZON.CancelIntent")
 @ask.intent("AMAZON.StopIntent")
 def no_intent():
     bye_text = "Glad I could help, have a wonderful day!"
@@ -98,8 +102,8 @@ def open_by_date(time):
         places = get_open_places(location, time)
         return question(statement_helper(places, location))
     except:
-        msg = "Sorry I don't know what you mean!"
-        return statement(msg)
+        msg = ERROR_STATEMENT+ADDITIONAL_QUESTION
+        return question(msg)
 
 
 @ask.intent("IsPlaceOpen")
@@ -110,17 +114,17 @@ def check_place_open(time):
         if place is None:
             raise Exception("Invalid on-campus dining location")
         place_info = generate_place_info(place, time)
-        msg = "Sorry I don't know what you mean!"
+        msg = ""
         if place_info == "Closed":
             msg = f"{place} is {place_info}..."
         else:
             duration = place_info.replace("-", "to")
             msg = f"{place} is open from {duration}..."
-        msg += "Do you want to ask something else?"
+        msg += ADDITIONAL_QUESTION
         return question(msg)
     except:
-        msg = "Sorry I don't know what you mean!"
-        return statement(msg)
+        msg = ERROR_STATEMENT+ADDITIONAL_QUESTION
+        return question(msg)
 
 
 @ask.intent("Menu")
@@ -134,17 +138,16 @@ def menu(time):
             raise Exception("Invalid dining location id")
         menu = get_menu(dining_place_id, time, meal_time)
         out_msg = read_menu(menu, dining_place, meal_time)
-        out_msg += "Do you want to ask something else?"
+        out_msg += ADDITIONAL_QUESTION
         return question(out_msg)
     except Exception as ex:
-        print(ex)
-        msg = "Sorry I don't know what you mean!"
-        return statement(msg)
+        msg = ERROR_STATEMENT+ADDITIONAL_QUESTION
+        return question(msg)
 
 
 @ask.intent("AMAZON.FallbackIntent")
 def default_fallback():
-    msg = "Sorry I don't know what you mean!"
+    msg = ERROR_STATEMENT
     return statement(msg)
 
 
