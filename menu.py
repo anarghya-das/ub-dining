@@ -16,8 +16,10 @@ def scrap_menu(url, dining_center, time=None):
     meal_periods = dining_div.find_all("div", "panel-group")
     menu = {}
     for meal in meal_periods:
-        closed = meal.get('id').split('-')[1].strip()
-        print(closed)
+        debug = meal.get('id')
+        print(debug)
+        closed = debug.split('-')[1].strip()
+        print(f"Closed: {closed}")
         if closed == "nomenu":
             return "Closed"
         meal_time = meal.get('id').split('-')[2].strip()
