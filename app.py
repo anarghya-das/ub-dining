@@ -79,9 +79,9 @@ def start_skill():
 # Three things: Ask what is open at any day; Ask if that a particular location is open or not; Ask the menu for a dining center.
 @ask.intent("AMAZON.HelpIntent")
 def help():
-    help_text = "Hello, you can ask about what is open in UB..." + \
+    help_text = "You can ask about what is open in UB..." + \
         "You can also ask if a particular dining location is open or not and you can ask for the menu for a dining center in UB..." + \
-        "For sample commands look at the alexa skills page."
+        "For sample commands look at the alexa skills page." + ADDITIONAL_QUESTION
     return question(help_text)
 
 
