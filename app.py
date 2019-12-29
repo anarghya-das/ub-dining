@@ -73,7 +73,7 @@ def homepage():
 
 @ask.launch
 def start_skill():
-    welcome_message = 'Hello, I will help you with information about dining places in UB. For more information about what I can do just say help!'
+    welcome_message = 'Hello, I will help you with information about dining places in UB. To know more about what I can do just say help!'
     return question(welcome_message)
 
 # Three things: Ask what is open at any day; Ask if that a particular location is open or not; Ask the menu for a dining center.
