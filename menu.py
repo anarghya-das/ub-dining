@@ -8,6 +8,7 @@ import datetime
 
 
 def scrap_menu(url, dining_center, time=None):
+    print(url, dining_center, time)
     page = requests.get(url)
     page_html = page.text
     soup = BeautifulSoup(page_html, 'html.parser')
