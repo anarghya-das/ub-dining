@@ -37,14 +37,14 @@ def get_custom_value(content, intent, id_value=False):
 def statement_helper(plcaes, location):
     places_msg = ""
     if len(plcaes) == 1:
-        places_msg = f"The only food place open at {location} is {plcaes[0]}"
+        places_msg = f"The only food place open in {location} is {plcaes[0]}"
     elif len(plcaes) == 0:
-        places_msg = f"There are no food places open at {location}! "
+        places_msg = f"There are no food places open in {location}! "
     else:
         msg = ""
         for places_text in plcaes:
             msg += places_text
-        places_msg = f"The food places open at {location} are {msg}"
+        places_msg = f"The food places open in {location} are {msg}"
     places_msg += ADDITIONAL_QUESTION
     return places_msg
 
@@ -73,7 +73,7 @@ def homepage():
 
 @ask.launch
 def start_skill():
-    welcome_message = 'Hello, I will help you with dining places at UB. For more information about what I can do just say help!'
+    welcome_message = 'Hello, I will help you with dining places in UB. For more information about what I can do just say help!'
     return question(welcome_message)
 
 # Three things: Ask what is open at any day; Ask if that a particular location is open or not; Ask the menu for a dining center.
