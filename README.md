@@ -1,4 +1,4 @@
-# ub-dining
+# UB Dining
 
 Ever wanted to just ask your assistant if a dining location on-campus is open or closed? Do you want to know what is the menu for your dining center today or any particular date? Then this is just the skill you would want to enable.
 
