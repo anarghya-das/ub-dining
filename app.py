@@ -1,7 +1,8 @@
 from flask import Flask, request
 from flask_ask import Ask, statement, question, session
 from menu import get_menu
-from utility import get_custom_value, generate_place_info, get_open_places, statement_helper, read_menu
+from location_status import generate_place_info
+from responses import get_user_input_value, get_open_places, statement_helper, read_menu
 import responses
 
 app = Flask(__name__)
@@ -28,29 +29,27 @@ def help():
 @ask.intent("AMAZON.StopIntent")
 @ask.session_ended
 def no_intent():
-    bye_text = "Glad I could help, go feast your taste buds now!"
-    return statement(bye_text)
+    return statement(responses.EXIT_RESPONSE)
 
 
 @ask.intent("OpenByLocation")
 def open_by_date(time):
     try:
         content = request.json
-        location = get_custom_value(content, "location")
+        location = get_user_input_value(content, "location")
         if location is None:
             location = responses.DEFAULT_LOCATION
         places = get_open_places(location, time)
         return question(statement_helper(places, location))
     except:
-        msg = responses.ERROR_STATEMENT+responses.ADDITIONAL_QUESTION
-        return question(msg)
+        return question(responses.ERROR_STATEMENT)
 
 
 @ask.intent("IsPlaceOpen")
 def check_place_open(time):
     try:
         content = request.json
-        place = get_custom_value(content, "place")
+        place = get_user_input_value(content, "place")
         if place is None:
             raise Exception("Invalid on-campus dining location")
         place_info = generate_place_info(place, time)
@@ -63,17 +62,16 @@ def check_place_open(time):
         msg += responses.ADDITIONAL_QUESTION
         return question(msg)
     except:
-        msg = responses.ERROR_STATEMENT
-        return question(msg)
+        return question(responses.ERROR_STATEMENT)
 
 
 @ask.intent("Menu")
 def menu(time):
     try:
         content = request.json
-        dining_place = get_custom_value(content, "diningCenter")
-        meal_time = get_custom_value(content, "mealTime")
-        dining_place_id = get_custom_value(content, "diningCenter", True)
+        dining_place = get_user_input_value(content, "diningCenter")
+        meal_time = get_user_input_value(content, "mealTime")
+        dining_place_id = get_user_input_value(content, "diningCenter", True)
         if dining_place_id is None:
             raise Exception("Invalid dining location id")
         menu = get_menu(dining_place_id, time, meal_time)

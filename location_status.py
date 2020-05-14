@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
+from utility import get_unix_time
 import requests
-import utility
 
 # date format: YYYY-MM-DD
 HOUR = 1
@@ -25,15 +25,15 @@ def scrap(url, area=None, place=None):
         buildings = location.find_all('div', 'col-xs-12 area')
         per_area = {}
         for building in buildings:
-            b_contents = building.contents
-            p_name_div = b_contents[0]
-            status_div = b_contents[1]
-            p_name = p_name_div.find('a').text.strip()
+            building_contents = building.contents
+            place_name_div = building_contents[0]
+            status_div = building_contents[1]
+            place_name = place_name_div.find('a').text.strip()
             timing = status_div.find('div').text.strip()
-            places[p_name] = timing
-            all_locations[p_name] = timing
+            places[place_name] = timing
+            all_locations[place_name] = timing
             if timing != "Closed":
-                per_area[p_name] = timing
+                per_area[place_name] = timing
         area_locations[area_name] = per_area
     if area is not None:
         return area_locations[area]
@@ -43,10 +43,10 @@ def scrap(url, area=None, place=None):
         return all_locations
 
 
-def generate_status(area, date=None):
+def generate_open_area_info(area, date=None):
     url = "https://myubcard.com/recess"
     if date != None:
-        date_param = utility.get_unix_time(date)
+        date_param = get_unix_time(date)
         url = f"https://myubcard.com/recess?date={date_param}"
     return scrap(url, area)
 
@@ -54,16 +54,10 @@ def generate_status(area, date=None):
 def generate_place_info(place, date=None):
     url = "https://myubcard.com/recess"
     if date != None:
-        date_param = utility.get_unix_time(date)
+        date_param = get_unix_time(date)
         url = f"https://myubcard.com/recess?date={date_param}"
     return scrap(url, None, place)
 
 
-AREAS = ["Ellicott / Greiner Hall", "North Campus Academic Buildings",
-         "South Campus", "Governors", "Downtown"]
-
-
 if __name__ == "__main__":
-    da = "2019-12-28"
-    a = generate_status(AREAS[0], da)
-    print(f"Open: {a}")
+    pass
