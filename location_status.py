@@ -57,7 +57,3 @@ def generate_place_info(place, date=None):
         date_param = get_unix_time(date)
         url = f"https://myubcard.com/recess?date={date_param}"
     return scrap(url, None, place)
-
-
-if __name__ == "__main__":
-    pass

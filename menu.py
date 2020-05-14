@@ -35,10 +35,3 @@ def get_menu(dining_center, date=None,  time=None):
         date_param = get_unix_time(date)
         url = f"https://myubcard.com/dining/menu?date={date_param}"
     return scrap_menu(url, dining_center, time)
-
-
-if __name__ == "__main__":
-    dining_centers = ['center-C3',
-                      'center-mainstreetmarketdiningcen', 'center-governors']
-    date = "2019-12-16"
-    print(get_menu(dining_centers[2], date, "breakfast"))
