@@ -2,8 +2,7 @@ from bs4 import BeautifulSoup
 from utility import get_unix_time
 import requests
 
-# date format: YYYY-MM-DD
-HOUR = 1
+LOCATION_CLOSED = "Closed"
 
 
 def scrap(url, area=None, place=None):
@@ -17,6 +16,16 @@ def scrap(url, area=None, place=None):
 
     recess_list = soup.find('div', attrs={'id': 'recess-content'})
     locations = recess_list.contents
+    all_locations, area_locations, places = populate_places(locations)
+    if area is not None:
+        return area_locations[area]
+    elif place is not None:
+        return places[place]
+    else:
+        return all_locations
+
+
+def populate_places(locations):
     all_locations = {}
     area_locations = {}
     places = {}
@@ -32,15 +41,10 @@ def scrap(url, area=None, place=None):
             timing = status_div.find('div').text.strip()
             places[place_name] = timing
             all_locations[place_name] = timing
-            if timing != "Closed":
+            if timing != LOCATION_CLOSED:
                 per_area[place_name] = timing
         area_locations[area_name] = per_area
-    if area is not None:
-        return area_locations[area]
-    elif place is not None:
-        return places[place]
-    else:
-        return all_locations
+    return all_locations, area_locations, places
 
 
 def generate_open_area_info(area, date=None):

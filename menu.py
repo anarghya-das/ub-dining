@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from utility import get_unix_time
 import requests
 
-LOCATION_CLOSED = "nomenu"
+CLOSED_MENU = "nomenu"
 
 
 def scrap_menu(url, dining_center, time=None):
@@ -12,21 +12,26 @@ def scrap_menu(url, dining_center, time=None):
 
     dining_div = soup.find('div', attrs={'id': dining_center})
     meal_periods = dining_div.find_all("div", "panel-group")
+    menu = populate_menu(meal_periods)
+    if time is None or time not in menu:
+        return menu
+    else:
+        return menu[time]
+
+
+def populate_menu(meal_periods):
     menu = {}
     for meal in meal_periods:
         debug = meal.get('id')
         closed = debug.split('-')[1].strip()
-        if closed == LOCATION_CLOSED:
+        if closed == CLOSED_MENU:
             return "Closed"
         meal_time = meal.get('id').split('-')[2].strip()
         menu_div = meal.find('div', attrs={'class': 'panel-body'})
         menu_items = menu_div.find_all("li", f"item-li {meal_time}-border")
         items = [item.text for item in menu_items]
         menu[meal_time] = items
-    if time is None or time not in menu:
-        return menu
-    else:
-        return menu[time]
+    return menu
 
 
 def get_menu(dining_center, date=None,  time=None):

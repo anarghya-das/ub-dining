@@ -40,14 +40,12 @@ def get_user_input_value(content, intent, id_value=False):
 def statement_helper(plcaes, location):
     places_msg = ""
     if len(plcaes) == 1:
-        places_msg = f"The only food place open in {location} is {plcaes[0]}"
+        places_msg = f"The only food place open in {location} is {plcaes[0]}. "
     elif len(plcaes) == 0:
         places_msg = f"There are no food places open in {location}! "
     else:
-        msg = ""
-        for places_text in plcaes:
-            msg += places_text
-        places_msg = f"The food places open in {location} are {msg}"
+        msg = "".join(plcaes)
+        places_msg = f"The food places open in {location} are {msg} "
     places_msg += ADDITIONAL_QUESTION
     return places_msg
 
@@ -56,14 +54,12 @@ def read_menu(menu, place, time=None):
     if menu == "Closed":
         return f"{place} is Closed! "
     else:
-        if time is None or len(menu) > 1:
+        if time is None or isinstance(menu, dict):
             menu_msg = f"The menu for {place} is..."
             for meal_time in menu:
-                menu_msg += f"{meal_time} menu..."
-                for item in menu[meal_time]:
-                    menu_msg += f"{item}, "
+                menu_items = ", ".join(menu[meal_time])
+                menu_msg += f"{meal_time} menu...{menu_items}. "
         else:
-            menu_msg = f"The {time} menu for {place} is "
-            for item in menu:
-                menu_msg += f"{item}, "
+            menu_items = ", ".join(menu)
+            menu_msg = f"The {time} menu for {place} is {menu_items}"
         return menu_msg
