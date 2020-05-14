@@ -1,16 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
-import time
-import calendar
+import utility
 
 # date format: YYYY-MM-DD
 HOUR = 1
-
-
-def get_unix_time(date):
-    date = date.strip()
-    # Adding 5 hours for EST conversion from UTC
-    return calendar.timegm(time.strptime(f'{date} 05', '%Y-%m-%d %H'))
 
 
 def scrap(url, area=None, place=None):
@@ -53,7 +46,7 @@ def scrap(url, area=None, place=None):
 def generate_status(area, date=None):
     url = "https://myubcard.com/recess"
     if date != None:
-        date_param = get_unix_time(date)
+        date_param = utility.get_unix_time(date)
         url = f"https://myubcard.com/recess?date={date_param}"
     return scrap(url, area)
 
@@ -61,7 +54,7 @@ def generate_status(area, date=None):
 def generate_place_info(place, date=None):
     url = "https://myubcard.com/recess"
     if date != None:
-        date_param = get_unix_time(date)
+        date_param = utility.get_unix_time(date)
         url = f"https://myubcard.com/recess?date={date_param}"
     return scrap(url, None, place)
 

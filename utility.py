@@ -1,15 +1,17 @@
-import responses
 from location_status import generate_status, generate_place_info
+import responses
+import calendar
+import time
 
 
 def get_open_places(location, date=None):
     open_places = generate_status(location, date)
-    alexa_out = []
+    alexa_places_output = []
     for place in open_places:
         duration = open_places[place].replace('-', 'to')
         s = f"{place} from {duration}. "
-        alexa_out.append(s)
-    return alexa_out
+        alexa_places_output.append(s)
+    return alexa_places_output
 
 
 def get_custom_value(content, intent, id_value=False):
@@ -54,3 +56,9 @@ def read_menu(menu, place, time=None):
             for item in menu:
                 menu_msg += f"{item}, "
         return menu_msg
+
+# date format: YYYY-MM-DD
+def get_unix_time(date):
+    date = date.strip()
+    # Adding 5 hours for EST conversion from UTC
+    return calendar.timegm(time.strptime(f'{date} 05', '%Y-%m-%d %H'))
